@@ -1,3 +1,9 @@
+# Credentials and other secrets
+cloudant_Credentials.js
+
+# Temp-Files
+*.*~
+
 # Logs
 logs
 *.log
