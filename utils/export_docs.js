@@ -3,15 +3,11 @@ var cradle = require('../node_modules/cradle'); // Driver for node.js Couchdb/Cl
 var dbCredentials = require('../dbCredentials.js');	// login information to databases
 
 // Connection to database: 
-// - local couchdb - for local test 
-// - bluemix cloudant - for 'production'
-if (dbCredentials.user == '') {
-  var connection = new(cradle.Connection)(dbCredentials.host, dbCredentials.port, {});
-  var db = connection.database(dbCredentials.dbName);
-} else {
-    db = new (cradle.Connection)(dbCredentials.host, 
-      {auth:{username: dbCredentials.user, password: dbCredentials.password}}).database(dbCredentials.dbName);
-};
+db = dbCredentials, function(err, docs) {
+  if (err) {
+    console.log('My Error: %s', err);
+  }
+}
 
 var fs = require('fs');
 

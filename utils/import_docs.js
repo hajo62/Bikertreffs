@@ -3,10 +3,11 @@ var cradle = require('../node_modules/cradle'); // Driver for node.js Couchdb/Cl
 var dbCredentials = require('../dbCredentials.js');	// login information to databases
 
 // Connection to database: 
-// - local couchdb - for local test 
-// - bluemix cloudant - for 'production'
-
-db = new (cradle.Connection)('1d695de8-aed7-4184-9249-d5d558688767-bluemix.cloudant.com', {auth:{username: '1d695de8-aed7-4184-9249-d5d558688767-bluemix', password: '0febe405741d03f1c4ccb6fabf3a86f328afdcc3aa322ca92d906eb645dd835f'}}).database('bikertreffs');
+db = dbCredentials, function(err, docs) {
+  if (err) {
+    console.log('My Error: %s', err);
+  }
+}
 
 var fs = require('fs');
 var path = process.argv[2];
