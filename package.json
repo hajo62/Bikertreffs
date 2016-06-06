@@ -1,23 +1,12 @@
 {
-  "name": "cloudant_boilerplate_nodejs",
-  "version": "0.0.2",
+  "name": "Bikertreffs",
+  "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "start": "node app.js"
-  },
   "dependencies": {
-    "express": "4.13.x",
-    "ejs": "2.4.x",
-    "cloudant": "1.4.x",
-    "body-parser": "1.14.x",
-    "method-override": "2.3.x",
-    "morgan": "1.6.x",
-    "errorhandler": "1.4.x",
-    "connect-multiparty": "2.0.x",
-    "cradle": ""
+    "express": "4.13.4",
+    "cradle": "0.7.1"
   },
-  "repository": {},
   "engines": {
-  	"node": "4.x"
+    "node": "6.1.0"
   }
 }

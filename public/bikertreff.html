@@ -6,7 +6,7 @@
   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
   <script src="scripts/leaflet.markercluster.js"></script>
   <script src="scripts/jquery-2.1.1.min.js"></script>
-  
+
 <!--   <script src='togeojson.js'></script>
   <script>
     $.ajax('./bikertreff.gpx').done(function(xml) {
@@ -40,7 +40,7 @@
     }).addTo(map);
 
   // load GeoJSON from an external file
-  $.getJSON("bikertreff.geojson",function(data){
+  $.getJSON("./bikertreffs.geoJson",function(data){
       var bikertreffIcon = L.icon({
       iconUrl: 'bikertreff.png',
       iconSize: [40,45]
@@ -59,7 +59,7 @@
         // Tooltip on mouse over
         marker.on('mouseover', function()
           {marker.bindPopup(
-            feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng, 
+            feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
             {'offset': L.point(0,-15)}).openPopup();
         });
         marker.on('mouseout', function(){marker.closePopup();});

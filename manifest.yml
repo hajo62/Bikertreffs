@@ -1,9 +1,8 @@
 applications:
-- path: .
-  memory: 512M
-  instances: 1
-  domain: eu-gb.mybluemix.net
-  name: Bikertreffs
-  host: Bikertreffs
+- name: bikertreffs
   disk_quota: 1024M
-
+  host: bikertreffs
+  command: node app.js
+  path: .
+  instances: 1
+  memory: 128M

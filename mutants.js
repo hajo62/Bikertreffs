@@ -1,8 +1,5 @@
-global.dbName = 'bikertreffs';
+global.dbName = 'mutants';
 var express = require('express');
-var path = require('path');
-
-
 var mycloudant = require('./mycloudant.js');
 // read env from local file or CF Environment
 // http://blog.ibmjstart.net/2015/08/31/abstracting-out-environment-variables-for-bluemix/
@@ -17,47 +14,14 @@ var cloudantUser=vcapServices.cloudantNoSQLDB[0].credentials.username;
 var cloudantPassword=vcapServices.cloudantNoSQLDB[0].credentials.password;
 
 var app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 mycloudant.initConnection(cloudantHost, cloudantPort, cloudantUser, cloudantPassword, function(err,ret){
   if(err)
     console.log(err);
-  else{
-    mycloudant.createViews(function(err,ret){});
-  }
+  else{}
 });
 
-
-app.get('/NewMutants', function(req, res1) {
-  mycloudant.createExampleMutants('Hajo',function(err, res2){
-    if(err)
-         console.log('Could not create mutants ' + err);
-      else
-         console.log('>>>' + res2);
-    });
-  res1.send('New mutants created: ');
-})
-
-
-app.get('/ReadMutants', function(req, res) {
-  mycloudant.findAllBikertreffs(function(err, doc){
-    if(err)
-      console.log('Error reading all mutants: ' + err);
-    else {
-      console.log(doc);
-      res.send(doc);
-
-      var fs = require("fs");
-      fs.writeFile('./public/bikertreffs.geoJson', '['+doc+']', function (error) {
-
-    });
-    };
-  });
-});
-
-app.get('/bikertreff', function(req, res) {
-  res.sendfile('./public/bikertreff.html');
-});
 
 app.get('/NewMutants', function(req, res1) {
   mycloudant.createExampleMutants('Hajo',function(err, res2){
