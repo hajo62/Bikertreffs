@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Hajo's Bikertreff-Karte</title>
+  <title>Hajo's Bikertreffs-Karte</title>
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
   <link rel="stylesheet" href="style/MarkerCluster.css"/>
   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
@@ -20,66 +20,58 @@
   </style>
 </head>
 <body>
-
   <div id="map"></div>
-
+  <script src="scripts/LeafLet-MapProvider.js"></script>
   <script>
+    // initialize the maps
+    var cities = new L.LayerGroup();
+    //L.marker([39.61, -105.02]).bindPopup('This is Littleton, CO.').addTo(cities),
+    //L.marker([39.74, -104.99]).bindPopup('This is Denver, CO.').addTo(cities),
+    //L.marker([39.73, -104.8]).bindPopup('This is Aurora, CO.').addTo(cities),
+    //L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.').addTo(cities);
 
+    var map = L.map('map', {
+      center: [50.9513627, 7.2044041],
+      zoom: 9,
+      //layers: [cities, OpenStreetMap ]
+      layers: [cities, OpenStreetMap]
+    });
 
+    var overlays = {
+      "Cities": cities
+    };
 
-  // initialize the map
-  var map = L.map('map').setView([50.9513627, 7.2044041], 9);
+    //L.control.layers(baseLayers, overlays).addTo(map);
+    L.control.layers(baseLayers).addTo(map);
 
-
-  // load a tile layer
-  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-      minZoom: 1
-    }).addTo(map);
-
-  // load GeoJSON from an external file
-  $.getJSON("./bikertreffs.geoJson",function(data){
+    // load GeoJSON from an external file
+    $.getJSON("./bikertreffs.geoJson",function(data){
       var bikertreffIcon = L.icon({
       iconUrl: 'bikertreff.png',
       iconSize: [40,45]
     });
 
+     //console.log(JSON.stringify(data));
+      // add GeoJSON layer to the map once the file is loaded
+      var rodents = L.geoJson(data, {
+        pointToLayer: function(feature,latlng) {
+            var marker = L.marker(latlng,{icon: bikertreffIcon});
+            //marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
 
-//console.log(JSON.stringify(data));
-
-
-    // add GeoJSON layer to the map once the file is loaded
-    var rodents = L.geoJson(data,{
-      pointToLayer: function(feature,latlng){
-      	var marker = L.marker(latlng,{icon: bikertreffIcon});
-        //marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
-
-        // Tooltip on mouse over
-        marker.on('mouseover', function()
-          {marker.bindPopup(
-            feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
-            {'offset': L.point(0,-15)}).openPopup();
-        });
-        marker.on('mouseout', function(){marker.closePopup();});
-
-        return marker;
-      }
+            // Tooltip on mouse over
+            marker.on('mouseover', function() {
+              marker.bindPopup(
+              feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
+              {'offset': L.point(0,-15)}).openPopup();
+            });
+          marker.on('mouseout', function(){marker.closePopup();});
+          return marker;
+        }
+      });
+      var clusters = L.markerClusterGroup();
+      clusters.addLayer(rodents);
+      map.addLayer(clusters);
     });
-    var clusters = L.markerClusterGroup();
-    clusters.addLayer(rodents);
-    map.addLayer(clusters);
-
-
-
-
-
-});
-
-
-
-
-  </script>
-</body>
+    </script>
+  </body>
 </html>
