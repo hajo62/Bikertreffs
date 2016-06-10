@@ -1,76 +1,127 @@
 <html>
-<head>
-  <title>Hajo's Bikertreffs-Karte</title>
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
-  <link rel="stylesheet" href="style/MarkerCluster.css"/>
-  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-  <script src="scripts/leaflet.markercluster.js"></script>
-  <script src="scripts/jquery-2.1.1.min.js"></script>
+  <head>
+    <title>Hajo's Bikertreffs-Karte V0.0.4</title>
+    <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/> -->
+    <link rel="stylesheet" href="/scripts/leaflet/dist/leaflet.css"/>
+    <!-- <link rel="stylesheet" href="http://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css" /> -->
+    <link rel="stylesheet" href="/scripts/leaflet-search/dist/leaflet-search.min.css" />
+    <link rel="stylesheet" href="style/MarkerCluster.css"/>
 
-<!--   <script src='togeojson.js'></script>
-  <script>
-    $.ajax('./bikertreff.gpx').done(function(xml) {
-      console.log(toGeoJSON.gpx(gpx));
-    });
-  </script>
- -->
+    <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
+    <script src="/scripts/leaflet/dist/leaflet.js"></script>
+    <!-- <script src="http://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.js"></script> -->
+    <script src="scripts/leaflet-search/dist/leaflet-search.min.js"></script>
+    <script src="scripts/leaflet.markercluster.js"></script>
+    <script src="scripts/jquery-2.1.1.min.js"></script>
 
-  <style>
-    #map{ width: 100%; height: 100%; }
-  </style>
-</head>
+    <style>
+      #map{ width: 100%; height: 100%; }
+    </style>
+  </head>
 <body>
   <div id="map"></div>
-  <script src="scripts/LeafLet-MapProvider.js"></script>
+  <script src="scripts/leaflet-MapProvider.js"></script>
+  <!-- Include für die Ortssuche mit googleapis -->
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
   <script>
     // initialize the maps
-    var cities = new L.LayerGroup();
-    //L.marker([39.61, -105.02]).bindPopup('This is Littleton, CO.').addTo(cities),
-    //L.marker([39.74, -104.99]).bindPopup('This is Denver, CO.').addTo(cities),
-    //L.marker([39.73, -104.8]).bindPopup('This is Aurora, CO.').addTo(cities),
-    //L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.').addTo(cities);
-
     var map = L.map('map', {
-      center: [50.9513627, 7.2044041],
+      center: [50.9513627, 7.2044041],  // Bergische Land
       zoom: 9,
-      //layers: [cities, OpenStreetMap ]
-      layers: [cities, OpenStreetMap]
     });
+    map.addLayer(OpenStreetMap);  //base layer
 
-    var overlays = {
-      "Cities": cities
-    };
-
-    //L.control.layers(baseLayers, overlays).addTo(map);
+    var markersLayer = new L.LayerGroup();  //layer contain searched elements
+  	map.addLayer(markersLayer);
     L.control.layers(baseLayers).addTo(map);
 
-    // load GeoJSON from an external file
+    // load GeoJSON date from an external file
     $.getJSON("./bikertreffs.geoJson",function(data){
       var bikertreffIcon = L.icon({
-      iconUrl: 'bikertreff.png',
-      iconSize: [40,45]
-    });
+        iconUrl: 'bikertreff.png',
+        iconSize: [40,45]
+      });
+      //console.log(data);
 
-     //console.log(JSON.stringify(data));
       // add GeoJSON layer to the map once the file is loaded
-      var rodents = L.geoJson(data, {
+      var bikertreffs = L.geoJson(data, {
         pointToLayer: function(feature,latlng) {
-            var marker = L.marker(latlng,{icon: bikertreffIcon});
-            //marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
+          var marker = L.marker(latlng,{icon: bikertreffIcon});
+          //marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
 
-            // Tooltip on mouse over
-            marker.on('mouseover', function() {
-              marker.bindPopup(
-              feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
-              {'offset': L.point(0,-15)}).openPopup();
-            });
-          marker.on('mouseout', function(){marker.closePopup();});
+          marker.on('click', function(evt) {
+            //again, evt.target will contain the marker that was clicked
+            marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
+          });
+          // // Tooltip on mouse over
+          // marker.on('mouseover', function() {
+          //   marker.bindPopup(
+          //   feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
+          //   {'offset': L.point(0,-15)}).openPopup();
+          // });
+          // marker.on('mouseout', function(){marker.closePopup();});
           return marker;
         }
       });
       var clusters = L.markerClusterGroup();
-      clusters.addLayer(rodents);
+      clusters.addLayer(bikertreffs);
       map.addLayer(clusters);
+
+      // Das erzeugt das Suchfeld, durchsucht aber etwas, was ich noch nicht verstanden habe
+      var searchControl = new L.Control.Search({
+    		layer: markersLayer,
+    		propertyName: 'name',
+        textPlaceholder: 'Wo immer das sucht und nix findet',
+    		// moveToLocation: function(latlng, title, map) {
+    		// 	//map.fitBounds( latlng.layer.getBounds() );
+    		// 	var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+      	// 		map.setView(latlng, zoom); // access the zoom
+    		// }
+    	});
+    	map.addControl( searchControl );  //inizialize search control
+
+      //Ortssuche über OSM
+    	map.addControl( new L.Control.Search({
+    		url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+    		jsonpParam: 'json_callback',
+    		propertyName: 'display_name',
+    		propertyLoc: ['lat','lon'],
+    		markerLocation: true,
+    		autoCollapse: true,
+    		autoType: false,
+        textPlaceholder: 'Ortssuche mit OpenStreetMap',
+    		minLength: 3
+    	}) );
+
+      // Ortssuche über google
+    	// var geocoder = new google.maps.Geocoder();
+    	// function googleGeocoding(text, callResponse) {
+    	// 	geocoder.geocode({address: text}, callResponse);
+    	// }
+      //
+    	// function formatJSON(rawjson) {
+    	// 	var json = {},
+    	// 		key, loc, disp = [];
+      //
+    	// 	for(var i in rawjson){
+    	// 		key = rawjson[i].formatted_address;
+    	// 		loc = L.latLng( rawjson[i].geometry.location.lat(), rawjson[i].geometry.location.lng() );
+    	// 		json[ key ]= loc;	//key,value format
+    	// 	}
+    	// 	return json;
+    	// }
+      //
+    	// map.addControl( new L.Control.Search({
+    	// 		sourceData: googleGeocoding,
+    	// 		formatData: formatJSON,
+    	// 		markerLocation: true,
+    	// 		autoType: false,
+    	// 		autoCollapse: true,
+      //     autoType: false,
+    	// 		minLength: 2
+    	// 	})
+      // );
+
     });
     </script>
   </body>

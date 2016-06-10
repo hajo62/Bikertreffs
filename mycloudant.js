@@ -47,7 +47,7 @@ function createExampleMutants(mutantName, cb){
 
 
 function createViews(cb){
-	db.save('_design/mutants', {
+	db.save('_design/bikertreffs', {
     all: {
       map: function (doc) {
         if (doc.name) emit(doc.name, doc);
@@ -88,7 +88,7 @@ function findAll(cb){
 
 
 function findAllBikertreffs(cb){
-	db.view('mutants/allBikertreffs', {
+	db.view('bikertreffs/allBikertreffs', {
   },function (err, res) {
 		if(err){
 			cb(err,null);
@@ -110,10 +110,34 @@ function findAllBikertreffs(cb){
 }
 
 
+function findAllBikertreffs2(cb){
+	db.view('bikertreffs/allBikertreffs', {
+  },function (err, res) {
+		if(err){
+			cb(err,null);
+		}
+		else{
+      //console.log(res);
+      var docs = [];
+      res.forEach(function (row){
+        //console.log(row.key.name);
+        //console.log(row.key.coordinates);
+      docs.push('\n' + '{"loc":[' + row.key.coordinates + '], '
+                     + '"title": ' + row.key.name + '}'
+        ).toString();
+      });
+      console.log(docs);
+      cb(null, docs);
+		}
+	});
+}
+
+
 module.exports = {
 	initConnection: initConnection,
 	createExampleMutants: createExampleMutants,
 	createViews: createViews,
   findAll: findAll,
-  findAllBikertreffs: findAllBikertreffs
+  findAllBikertreffs: findAllBikertreffs,
+  findAllBikertreffs2: findAllBikertreffs2
 };

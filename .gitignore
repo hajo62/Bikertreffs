@@ -6,3 +6,6 @@ VCAP_SERVICES.json
 logs
 *.log
 npm-debug.log*
+
+# Temp and system files
+.DS_Store

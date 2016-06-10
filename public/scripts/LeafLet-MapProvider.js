@@ -87,6 +87,23 @@
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
     maxZoom: 18
   });
+  var googlemap = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+      maxZoom: 20,
+      subdomains:['mt0','mt1','mt2','mt3']
+  });
+  var googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+  });
+  var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+  });
+  var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+  });
+
 
   var baseLayers = {
     "OpenStreetMap": OpenStreetMap,
@@ -105,5 +122,9 @@
     //"MapBox": MapBox,
     //"cloudmade": cloudmade,
   	"Streets": streets,
-  	"Grayscale": grayscale
+  	"Grayscale": grayscale,
+    "Google Maps": googlemap,
+    "Google Hybrid": googleHybrid,
+    "Google Satellite": googleSat,
+    "Google Terrain": googleTerrain
   };
