@@ -26,28 +26,28 @@
   <script>
     // initialize the maps
     var map = L.map('map', {
-      center: [50.9513627, 7.2044041],  // Bergische Land
+      center: [50.9513627, 7.2044041],  // Bergisches Land
       zoom: 9,
     });
     map.addLayer(OpenStreetMap);  //base layer
+    L.control.scale({imperial: false}).addTo(map);
 
     var markersLayer = new L.LayerGroup();  //layer contain searched elements
   	map.addLayer(markersLayer);
-    L.control.layers(baseLayers).addTo(map);
+    //L.control.layers(baseLayers).addTo(map);
 
     // load GeoJSON date from an external file
     $.getJSON("./bikertreffs.geoJson",function(data){
       var bikertreffIcon = L.icon({
         iconUrl: 'bikertreff.png',
-        iconSize: [40,45]
+        iconSize: [40,40]
       });
       //console.log(data);
 
       // add GeoJSON layer to the map once the file is loaded
       var bikertreffs = L.geoJson(data, {
         pointToLayer: function(feature,latlng) {
-          var marker = L.marker(latlng,{icon: bikertreffIcon});
-          //marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
+          var marker = L.marker(latlng,{icon: bikertreffIcon, title: feature.properties.name});
 
           marker.on('click', function(evt) {
             //again, evt.target will contain the marker that was clicked
@@ -63,15 +63,19 @@
           return marker;
         }
       });
+
       var clusters = L.markerClusterGroup();
       clusters.addLayer(bikertreffs);
       map.addLayer(clusters);
 
-      // Das erzeugt das Suchfeld, durchsucht aber etwas, was ich noch nicht verstanden habe
+      // Das erzeugt das Suchfeld, für die Suche nach den Bikertreffs
       var searchControl = new L.Control.Search({
-    		layer: markersLayer,
+    		layer: clusters,
+        initial: false,
     		propertyName: 'name',
-        textPlaceholder: 'Wo immer das sucht und nix findet',
+        textPlaceholder: 'Suche nach Bikertreffs',
+        markerLocation: true,
+        zoom: 13,
     		// moveToLocation: function(latlng, title, map) {
     		// 	//map.fitBounds( latlng.layer.getBounds() );
     		// 	var zoom = map.getBoundsZoom(latlng.layer.getBounds());
