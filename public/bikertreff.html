@@ -21,6 +21,9 @@
 <body>
   <div id="map"></div>
   <script src="scripts/leaflet-MapProvider.js"></script>
+  <!-- <script src="../mycloudant.js"></script> -->
+
+
   <!-- Include für die Ortssuche mit googleapis -->
   <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
   <script>
@@ -34,13 +37,22 @@
 
     var markersLayer = new L.LayerGroup();  //layer contain searched elements
   	map.addLayer(markersLayer);
-    //L.control.layers(baseLayers).addTo(map);
+    L.control.layers(baseLayers).addTo(map);
+
+
+
+
+
+
+
+
 
     // load GeoJSON date from an external file
     $.getJSON("./bikertreffs.geoJson",function(data){
       var bikertreffIcon = L.icon({
         iconUrl: 'bikertreff.png',
-        iconSize: [40,40]
+        iconSize: [35,54],
+        iconAnchor: [17, 54],
       });
       //console.log(data);
 
@@ -54,6 +66,7 @@
             marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
           });
           // // Tooltip on mouse over
+          // Verworfen, man ich das mit  mouseover und click nicht hinbekommen
           // marker.on('mouseover', function() {
           //   marker.bindPopup(
           //   feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
@@ -74,7 +87,7 @@
         initial: false,
     		propertyName: 'name',
         textPlaceholder: 'Suche nach Bikertreffs',
-        markerLocation: true,
+        markerLocation: false,
         zoom: 13,
     		// moveToLocation: function(latlng, title, map) {
     		// 	//map.fitBounds( latlng.layer.getBounds() );

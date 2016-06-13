@@ -54,9 +54,8 @@ app.get('/ReadMutants', function(req, res) {
       res.send(doc);
 
       var fs = require("fs");
-      fs.writeFile('./public/bikertreffs.geoJson', '['+doc+']', function (error) {
-
-    });
+      // fs.writeFile('./public/bikertreffs.geoJson', '['+doc+']', function (error) {
+      // });
     };
   });
 });
