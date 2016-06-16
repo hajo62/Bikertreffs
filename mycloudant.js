@@ -2,7 +2,7 @@ var cradle = require('cradle');
 var connection;
 var db;
 
-function initConnection(host, port,user, password,cb){
+function initConnection(host, port, user, password, cb){
 	//connection = new(cradle.Connection)(url, port, {
   //    auth: { username: user, password: password }
   //});
@@ -13,13 +13,13 @@ function initConnection(host, port,user, password,cb){
 		auth: { username: user, password: password }
   });
 	db = connection.database(dbName);
-	db.exists(function(err,exists){
+	db.exists(function(err, exists){
 		if(err){
 			console.log('Error accessing db' + err );
 			cb(err,null);
 		} else if (exists) {
 	  		console.log('db ' + dbName + ' exists');
-  			cb(null,'ok');
+  			cb(null, db);
   		} else {
 			  console.log('db ' + dbName + ' will be created');
 			  db.create();
@@ -87,34 +87,13 @@ function findAll(cb){
 }
 
 
-function findAllBikertreffs(cb){
+
+
+function findAllBikertreffs2(callback){
 	db.view('bikertreffs/allBikertreffs', {
   },function (err, res) {
 		if(err){
-			cb(err,null);
-		}
-		else{
-      //console.log(res);
-      var docs = [];
-      res.forEach(function (row){
-        //console.log(row.key.name);
-        //console.log(row.key.coordinates);
-      docs.push('\n' + '{"type":"Feature","properties":{"name":"' + row.key.name
-                     + '"},"geometry":{"type":"Point","coordinates":[' + row.key.coordinates + ']}}'
-        ).toString();
-      });
-      //cb(null, docs.length + ' Bikertreffs read: ' + docs);
-      cb(null, docs);
-		}
-	});
-}
-
-
-function findAllBikertreffs2(cb){
-	db.view('bikertreffs/allBikertreffs', {
-  },function (err, res) {
-		if(err){
-			cb(err,null);
+			callback(err, null);
 		}
 		else{
       //console.log(res);
@@ -127,7 +106,7 @@ function findAllBikertreffs2(cb){
         ).toString();
       });
       console.log(docs);
-      cb(null, docs);
+      callback(null, docs);
 		}
 	});
 }
@@ -138,6 +117,6 @@ module.exports = {
 	createExampleMutants: createExampleMutants,
 	createViews: createViews,
   findAll: findAll,
-  findAllBikertreffs: findAllBikertreffs,
+  // findAllBikertreffs: findAllBikertreffs,
   findAllBikertreffs2: findAllBikertreffs2
 };

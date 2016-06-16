@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Hajo's Bikertreffs-Karte V0.0.4</title>
+    <title>Hajo's Bikertreffs-Karte V0.1.0</title>
     <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/> -->
     <link rel="stylesheet" href="/scripts/leaflet/dist/leaflet.css"/>
     <!-- <link rel="stylesheet" href="http://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css" /> -->
@@ -39,27 +39,21 @@
   	map.addLayer(markersLayer);
     L.control.layers(baseLayers).addTo(map);
 
-
-
-
-
-
-
-
-
-    // load GeoJSON date from an external file
-    $.getJSON("./bikertreffs.geoJson",function(data){
-      var bikertreffIcon = L.icon({
-        iconUrl: 'bikertreff.png',
-        iconSize: [35,54],
-        iconAnchor: [17, 54],
-      });
-      //console.log(data);
+    // Das war die Vorversion mit lesen der Daten aus einer Datei
+    // $.getJSON("./bikertreffs.geoJson",
+    // Dieser Aufruf erhält alle Bikertreffs aus der Cloudant-Datenbank
+    $.getJSON('/getBikertreffs',
+      function(data) {
+        var bikertreffIcon = L.icon({
+          iconUrl: 'bikertreff.png',
+          iconSize: [35,54],
+          iconAnchor: [17, 54],
+        });
 
       // add GeoJSON layer to the map once the file is loaded
       var bikertreffs = L.geoJson(data, {
-        pointToLayer: function(feature,latlng) {
-          var marker = L.marker(latlng,{icon: bikertreffIcon, title: feature.properties.name});
+        pointToLayer: function(feature, latlng) {
+          var marker = L.marker(latlng, {icon: bikertreffIcon, title: feature.properties.name});
 
           marker.on('click', function(evt) {
             //again, evt.target will contain the marker that was clicked
@@ -97,7 +91,7 @@
     	});
     	map.addControl( searchControl );  //inizialize search control
 
-      //Ortssuche über OSM
+      // Ortssuche über OSM
     	map.addControl( new L.Control.Search({
     		url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
     		jsonpParam: 'json_callback',
@@ -110,10 +104,11 @@
     		minLength: 3
     	}) );
 
-      // Ortssuche über google
+      // Alternativ Ortssuche über google
+      // Muss ich aber Lizenz klären und API-Schlüssel erzeugen
     	// var geocoder = new google.maps.Geocoder();
     	// function googleGeocoding(text, callResponse) {
-    	// 	geocoder.geocode({address: text}, callResponse);
+    	// 	 geocoder.geocode({address: text}, callResponse);
     	// }
       //
     	// function formatJSON(rawjson) {
