@@ -12,6 +12,7 @@ var cloudantPort = vcapServices.cloudantNoSQLDB[0].credentials.port;
 var cloudantUser = vcapServices.cloudantNoSQLDB[0].credentials.username;
 var cloudantPassword = vcapServices.cloudantNoSQLDB[0].credentials.password;
 
+// Connect to the database
 connection = new(cradle.Connection)('https://' + cloudantHost, cloudantPort, {
   cache: true,
   secure: true,
@@ -26,9 +27,11 @@ db.exists(function(err, exists){
   }
 });
 
-function getAllBikertreffs(callback){
-	db.view('bikertreffs/allBikertreffs', {
-  },function (err, res) {
+
+
+// Liest alle Bikertreffs über eine entsprechende View
+function getBikertreffs(callback){
+	db.view('bikertreffs/allBikertreffs', function (err, res) {
 		if(err){
 			callback(err, null);
 		}
@@ -47,10 +50,19 @@ function getAllBikertreffs(callback){
 	});
 }
 
-// Liest alle Bikertreffs und baut die GeoJSON-Daten daraus zusammen.
+function putBikertreff(callback){
+  db.save({
+      force: 'dark', name: 'Darth'
+  }, function (err, res) {
+      console.log(res);
+      callback(null, res);
+  });
+}
+
+// Liest alle Bikertreffs über die Funktion getBikertreffs und baut die GeoJSON-Daten daraus zusammen.
 // Das ist sicherlich noch nicht der Weisheit letzter Schluss
 exports.getBikertreffs = function(req, res) {
-  getAllBikertreffs(function(err, doc){
+  getBikertreffs(function(err, doc){
     if(err)
       console.log('Error reading all mutants: ' + err);
     else {
@@ -67,6 +79,17 @@ exports.getBikertreffs = function(req, res) {
     };
   });
 };
+
+exports.putBikertreff = function(req, res) {
+  putBikertreff(function(err, doc){
+    if(err)
+      console.log('Error writing new Bikertreff: ' + err);
+    else {
+      console.log(res);
+    };
+  });
+};
+
 
 exports.findById = function(req, res) {
     res.send({id:req.params.id, name: "The Name", description: "description"});

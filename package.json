@@ -1,12 +1,14 @@
 {
   "name": "Bikertreffs",
-  "version": "0.0.3",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "express": "4.13.4",
     "cradle": "0.7.1",
     "leaflet": "0.7.7",
-    "leaflet-search": "1.9.8"
+    "leaflet-search": "1.9.8",
+    "leaflet-draw": "0.3.0",
+    "leaflet-toolbar": "0.1.2"
   },
   "engines": {
     "node": "6.1.0"

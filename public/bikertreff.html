@@ -1,43 +1,126 @@
 <html>
   <head>
-    <title>Hajo's Bikertreffs-Karte V0.1.0</title>
+    <title>Hajo's Bikertreffs-Karte V0.1.1</title>
     <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/> -->
     <link rel="stylesheet" href="/scripts/leaflet/dist/leaflet.css"/>
     <!-- <link rel="stylesheet" href="http://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css" /> -->
     <link rel="stylesheet" href="/scripts/leaflet-search/dist/leaflet-search.min.css" />
     <link rel="stylesheet" href="style/MarkerCluster.css"/>
+    <link rel="stylesheet" href="style/leaflet.contextmenu.min.css"/>
+    <!-- Magnific Popup core CSS file -->
+    <link rel="stylesheet" href="style/magnific-popup.css">
+    <!--  Nur vorübergehend, bis "eigenes" css gebastelt -->
+    <link rel="stylesheet" href="http://dimsemenov.com/plugins/magnific-popup/site-assets/all.min.css">
 
-    <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
-    <script src="/scripts/leaflet/dist/leaflet.js"></script>
-    <!-- <script src="http://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.js"></script> -->
+    <!-- Stylesheet in node_modules -->
+  	<link rel="stylesheet" type="text/css" href="leaflet-draw/dist/leaflet.draw.css" />
+
+    <script src="scripts/leaflet/dist/leaflet-src.js"></script>
     <script src="scripts/leaflet-search/dist/leaflet-search.min.js"></script>
     <script src="scripts/leaflet.markercluster.js"></script>
+    <script src="scripts/leaflet.contextmenu.min.js"></script>
     <script src="scripts/jquery-2.1.1.min.js"></script>
+
+    <!-- Scripts in node_modules -->
+    <script src="leaflet-draw/dist/leaflet.draw-src.js"></script>
 
     <style>
       #map{ width: 100%; height: 100%; }
     </style>
   </head>
+
 <body>
+  <!-- link that opens popup -->
+  <a class="popup-with-form" href="#test-form">Open form</a>
+
+
   <div id="map"></div>
   <script src="scripts/leaflet-MapProvider.js"></script>
-  <!-- <script src="../mycloudant.js"></script> -->
+  <!-- Include für die Ortssuche mit googleapis
+  <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
 
-
-  <!-- Include für die Ortssuche mit googleapis -->
-  <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
   <script>
     // initialize the maps
     var map = L.map('map', {
       center: [50.9513627, 7.2044041],  // Bergisches Land
       zoom: 9,
+      //drawControl: true,
+      // Menü bei Right Click in die Karte
+      contextmenu: true,
+      contextmenuWidth: 140,
+      contextmenuItems: [{
+        text: 'Show coordinates',
+        callback: showCoordinates
+      }, {
+        text: 'Center map here',
+        callback: centerMap
+      }, '-', {
+        text: 'Zoom in',
+        icon: 'images/zoom-in.png',
+        callback: zoomIn
+      }, {
+        text: 'Zoom out',
+        icon: 'images/zoom-out.png',
+        callback: zoomOut
+      }]
     });
-    map.addLayer(OpenStreetMap);  //base layer
-    L.control.scale({imperial: false}).addTo(map);
+    // Callback functions für das Right Click-Menü
+    function showCoordinates (e) {
+        alert(e.latlng);
+    }
+    function centerMap (e) {
+        map.panTo(e.latlng);
+    }
+    function zoomIn (e) {
+        map.zoomIn();
+    }
+    function zoomOut (e) {
+        map.zoomOut();
+    }
 
-    var markersLayer = new L.LayerGroup();  //layer contain searched elements
-  	map.addLayer(markersLayer);
+    // Basis Karten-Layer
+    map.addLayer(OpenStreetMap);
+    // Damit kann man die Karten-Anbieter umschalten
     L.control.layers(baseLayers).addTo(map);
+    // Nur metrischer Massstab unten links
+    L.control.scale({imperial: false}).addTo(map);
+    // Layer für die Marker und Suche
+    var markersLayer = new L.LayerGroup();
+  	map.addLayer(markersLayer);
+
+    // Wenn ein neuer Marker gesetzt wurde...
+    map.on('draw:created', function (e) {
+      var type = e.layerType,
+          layer = e.layer;
+
+      if (type === 'marker') {
+          layer.bindPopup('A popup!');
+          alert('Neuer Marker bei: ' + e.layer._latlng);
+          // a(href="http://link-to-open.com/" onclick="window.open(this.href);return false;")
+
+
+if (true) {
+  $('#test-form').position='hallo',
+    $.magnificPopup.open({
+        items: {
+            src: '#test-form',
+        },
+        type: 'inline'
+    });
+}
+
+
+
+      }
+
+      drawnItems.addLayer(layer);
+    });
+
+
+
+
+
+
 
     // Das war die Vorversion mit lesen der Daten aus einer Datei
     // $.getJSON("./bikertreffs.geoJson",
@@ -45,7 +128,7 @@
     $.getJSON('/getBikertreffs',
       function(data) {
         var bikertreffIcon = L.icon({
-          iconUrl: 'bikertreff.png',
+          iconUrl: 'images/bikertreffMarker.png',
           iconSize: [35,54],
           iconAnchor: [17, 54],
         });
@@ -77,6 +160,7 @@
 
       // Das erzeugt das Suchfeld, für die Suche nach den Bikertreffs
       var searchControl = new L.Control.Search({
+        position: 'topleft',
     		layer: clusters,
         initial: false,
     		propertyName: 'name',
@@ -123,6 +207,7 @@
     	// 	return json;
     	// }
       //
+
     	// map.addControl( new L.Control.Search({
     	// 		sourceData: googleGeocoding,
     	// 		formatData: formatJSON,
@@ -133,8 +218,96 @@
     	// 		minLength: 2
     	// 	})
       // );
-
+      //map.on('contextmenu', addMarker);
     });
+
+    // Erzeugen der Marker-Setzen-Toolbox
+    // Initialise the FeatureGroup to store editable layers
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    // Initialise the draw control and pass it the FeatureGroup of editable layers
+    var drawControl = new L.Control.Draw({
+      position: 'topleft',
+      draw: {
+       polyline: false,
+       polygon: false,
+       rectangle: false,
+       circle: false
+     },
+      edit: {
+        featureGroup: drawnItems,
+        edit: false,
+        remove: false
+      }
+    });
+    // Button text für set Marker Button
+    L.drawLocal.draw.toolbar.buttons.marker = 'Neue Markierung setzen.';
+    // Tooltip start text ffür set Marker Button
+    L.drawLocal.draw.handlers.marker.tooltip.start = 'Zum setzen einer neuen Markierung in die Karte klicken...';
+
+    map.addControl(drawControl);
+
+
+    function addMarker(e){
+      // Add marker to map at click location; add popup window
+      console.log("Neuer Marker");
+      console.log(e.latlng);
+      alert(e.latlng);
+      console.log(map.getZoom());
+      var newMarker = new L.marker(e.latlng).addTo(map);
+    }
     </script>
+
+    <!-- Magnific Popup core JS file -->
+    <script src="scripts/jquery.magnific-popup.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('.popup-with-form').magnificPopup({
+          type: 'inline',
+          preloader: false,
+          focus: '#name',
+
+          // When elemened is focused, some mobile browsers in some cases zoom in
+          // It looks not nice, so we disable it:
+          callbacks: {
+            beforeOpen: function() {
+              if($(window).width() < 700) {
+                this.st.focus = false;
+              } else {
+                this.st.focus = '#name';
+              }
+            }
+          }
+        });
+      });
+    </script>
+    <!-- form itself -->
+    <form id="test-form" class="mfp-hide white-popup-block">
+      <h1>Neuen Bikertreff anlegen</h1>
+      <fieldset style="border:0;">
+        <p>Lightbox has an option to automatically focus on the first input. It's strongly recommended to use <code>inline</code> popup type for lightboxes with form instead of <code>ajax</code> (to keep entered data if the user accidentally refreshed the page).</p>
+        <ol>
+          <li>
+            <label for="name">Position</label>
+            <input id="postion" name="postion" type="text" required>
+          </li>
+          <li>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="example@domain.com" required>
+          </li>
+          <li>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" placeholder="Eg. +447500000000" required>
+          </li>
+          <li>
+            <label for="textarea">Textarea</label><br/>
+            <textarea id="textarea">Try to resize me to see how popup
+              CSS-based resizing works.</textarea>
+          </li>
+        </ol>
+      </fieldset>
+    </form>
+
   </body>
 </html>

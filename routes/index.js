@@ -1,8 +1,14 @@
+var express = require('express');
+var router = express.Router();
 
 /*
  * GET home page.
  */
 
-exports.index = function(req, res){
-  res.render('../views/bikertreff.html', { title: 'Hajos Bikertreff-Verzeichnis' });
-};
+ router.get('/form', function(req, res) {
+   console.log('Hier bin ich');
+   //console.log(res);
+   res.sendFile('/public/form.html', {'root': '.'});
+ });
+
+module.exports = router;
