@@ -1,10 +1,6 @@
 <html>
   <head>
-    <title>Hajo's Bikertreffs-Karte V0.1.1</title>
-    <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/> -->
-    <link rel="stylesheet" href="/scripts/leaflet/dist/leaflet.css"/>
-    <!-- <link rel="stylesheet" href="http://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css" /> -->
-    <link rel="stylesheet" href="/scripts/leaflet-search/dist/leaflet-search.min.css" />
+    <title>Hajo's Bikertreffs-Karte V0.2.0</title>
     <link rel="stylesheet" href="style/MarkerCluster.css"/>
     <link rel="stylesheet" href="style/leaflet.contextmenu.min.css"/>
     <!-- Magnific Popup core CSS file -->
@@ -13,301 +9,325 @@
     <link rel="stylesheet" href="http://dimsemenov.com/plugins/magnific-popup/site-assets/all.min.css">
 
     <!-- Stylesheet in node_modules -->
+    <link rel="stylesheet" href="leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="leaflet-search/dist/leaflet-search.min.css" />
   	<link rel="stylesheet" type="text/css" href="leaflet-draw/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="Leaflet-FileLayer/Font-Awesome/css/font-awesome.min.css" />
 
-    <script src="scripts/leaflet/dist/leaflet-src.js"></script>
-    <script src="scripts/leaflet-search/dist/leaflet-search.min.js"></script>
+    <!-- Scripts in node_modules -->
+    <script src="leaflet/dist/leaflet.js"></script>
+    <script src="leaflet-search/dist/leaflet-search.min.js"></script>
+    <script src="leaflet-draw/dist/leaflet.draw.js"></script>
+    <script src="leaflet-fileLayer/leaflet.filelayer.js"></script>
+    <script src="leaflet-fileLayer/togeojson/togeojson.js"></script>
+
     <script src="scripts/leaflet.markercluster.js"></script>
     <script src="scripts/leaflet.contextmenu.min.js"></script>
     <script src="scripts/jquery-2.1.1.min.js"></script>
 
-    <!-- Scripts in node_modules -->
-    <script src="leaflet-draw/dist/leaflet.draw-src.js"></script>
+
 
     <style>
       #map{ width: 100%; height: 100%; }
     </style>
   </head>
 
-<body>
-  <!-- link that opens popup -->
-  <a class="popup-with-form" href="#test-form">Open form</a>
+  <body>
+    <!-- link that opens popup -->
+    <a class="popup-with-form" href="#test-form">Open form</a>
 
 
-  <div id="map"></div>
-  <script src="scripts/leaflet-MapProvider.js"></script>
-  <!-- Include für die Ortssuche mit googleapis
-  <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
+    <div id="map"></div>
+    <script src="scripts/leaflet-MapProvider.js"></script>
+    <!-- Include für die Ortssuche mit googleapis
+    <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
 
-  <script>
-    // initialize the maps
-    var map = L.map('map', {
-      center: [50.9513627, 7.2044041],  // Bergisches Land
-      zoom: 9,
-      //drawControl: true,
-      // Menü bei Right Click in die Karte
-      contextmenu: true,
-      contextmenuWidth: 140,
-      contextmenuItems: [{
-        text: 'Show coordinates',
-        callback: showCoordinates
-      }, {
-        text: 'Center map here',
-        callback: centerMap
-      }, '-', {
-        text: 'Zoom in',
-        icon: 'images/zoom-in.png',
-        callback: zoomIn
-      }, {
-        text: 'Zoom out',
-        icon: 'images/zoom-out.png',
-        callback: zoomOut
-      }]
-    });
-    // Callback functions für das Right Click-Menü
-    function showCoordinates (e) {
-        alert(e.latlng);
-    }
-    function centerMap (e) {
-        map.panTo(e.latlng);
-    }
-    function zoomIn (e) {
-        map.zoomIn();
-    }
-    function zoomOut (e) {
-        map.zoomOut();
-    }
+    <script>
+      // initialize the maps
+      var map = L.map('map', {
+        center: [50.9513627, 7.2044041],  // Bergisches Land
+        zoom: 9,
+        // Menü bei Right Click in die Karte
+        contextmenu: true,
+        contextmenuWidth: 140,
+        contextmenuItems: [{
+          text: 'Show coordinates',
+          callback: showCoordinates
+        }, {
+          text: 'Center map here',
+          callback: centerMap
+        }, '-', {
+          text: 'Zoom in',
+          icon: 'images/zoom-in.png',
+          callback: zoomIn
+        }, {
+          text: 'Zoom out',
+          icon: 'images/zoom-out.png',
+          callback: zoomOut
+        }]
+      });
 
-    // Basis Karten-Layer
-    map.addLayer(OpenStreetMap);
-    // Damit kann man die Karten-Anbieter umschalten
-    L.control.layers(baseLayers).addTo(map);
-    // Nur metrischer Massstab unten links
-    L.control.scale({imperial: false}).addTo(map);
-    // Layer für die Marker und Suche
-    var markersLayer = new L.LayerGroup();
-  	map.addLayer(markersLayer);
+      // Basis Karten-Layer
+      map.addLayer(OpenStreetMap);
+      // Damit kann man die Karten-Anbieter umschalten
+      L.control.layers(baseLayers).addTo(map);
+      // Nur metrischer Massstab unten links
+      L.control.scale({imperial: false}).addTo(map);
+      // Layer für die Marker und Suche
+      var markersLayer = new L.LayerGroup();
+      map.addLayer(markersLayer);
 
-    // Wenn ein neuer Marker gesetzt wurde...
-    map.on('draw:created', function (e) {
-      var type = e.layerType,
-          layer = e.layer;
-
-      if (type === 'marker') {
-          layer.bindPopup('A popup!');
-          alert('Neuer Marker bei: ' + e.layer._latlng);
-          // a(href="http://link-to-open.com/" onclick="window.open(this.href);return false;")
-
-
-if (true) {
-  $('#test-form').position='hallo',
-    $.magnificPopup.open({
-        items: {
-            src: '#test-form',
-        },
-        type: 'inline'
-    });
-}
-
-
-
-      }
-
-      drawnItems.addLayer(layer);
-    });
-
-
-
-
-
-
-
-    // Das war die Vorversion mit lesen der Daten aus einer Datei
-    // $.getJSON("./bikertreffs.geoJson",
-    // Dieser Aufruf erhält alle Bikertreffs aus der Cloudant-Datenbank
-    $.getJSON('/getBikertreffs',
-      function(data) {
+      // Liest alle Bikertreffs aus der Cloudant-Datenbank
+      $.getJSON('/getBikertreffs', function(data) {
         var bikertreffIcon = L.icon({
           iconUrl: 'images/bikertreffMarker.png',
           iconSize: [35,54],
           iconAnchor: [17, 54],
         });
 
-      // add GeoJSON layer to the map once the file is loaded
-      var bikertreffs = L.geoJson(data, {
-        pointToLayer: function(feature, latlng) {
-          var marker = L.marker(latlng, {icon: bikertreffIcon, title: feature.properties.name});
-
-          marker.on('click', function(evt) {
-            //again, evt.target will contain the marker that was clicked
-            marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
-          });
-          // // Tooltip on mouse over
-          // Verworfen, man ich das mit  mouseover und click nicht hinbekommen
-          // marker.on('mouseover', function() {
-          //   marker.bindPopup(
-          //   feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
-          //   {'offset': L.point(0,-15)}).openPopup();
-          // });
-          // marker.on('mouseout', function(){marker.closePopup();});
-          return marker;
-        }
-      });
-
-      var clusters = L.markerClusterGroup();
-      clusters.addLayer(bikertreffs);
-      map.addLayer(clusters);
-
-      // Das erzeugt das Suchfeld, für die Suche nach den Bikertreffs
-      var searchControl = new L.Control.Search({
-        position: 'topleft',
-    		layer: clusters,
-        initial: false,
-    		propertyName: 'name',
-        textPlaceholder: 'Suche nach Bikertreffs',
-        markerLocation: false,
-        zoom: 13,
-    		// moveToLocation: function(latlng, title, map) {
-    		// 	//map.fitBounds( latlng.layer.getBounds() );
-    		// 	var zoom = map.getBoundsZoom(latlng.layer.getBounds());
-      	// 		map.setView(latlng, zoom); // access the zoom
-    		// }
-    	});
-    	map.addControl( searchControl );  //inizialize search control
-
-      // Ortssuche über OSM
-    	map.addControl( new L.Control.Search({
-    		url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
-    		jsonpParam: 'json_callback',
-    		propertyName: 'display_name',
-    		propertyLoc: ['lat','lon'],
-    		markerLocation: true,
-    		autoCollapse: true,
-    		autoType: false,
-        textPlaceholder: 'Ortssuche mit OpenStreetMap',
-    		minLength: 3
-    	}) );
-
-      // Alternativ Ortssuche über google
-      // Muss ich aber Lizenz klären und API-Schlüssel erzeugen
-    	// var geocoder = new google.maps.Geocoder();
-    	// function googleGeocoding(text, callResponse) {
-    	// 	 geocoder.geocode({address: text}, callResponse);
-    	// }
-      //
-    	// function formatJSON(rawjson) {
-    	// 	var json = {},
-    	// 		key, loc, disp = [];
-      //
-    	// 	for(var i in rawjson){
-    	// 		key = rawjson[i].formatted_address;
-    	// 		loc = L.latLng( rawjson[i].geometry.location.lat(), rawjson[i].geometry.location.lng() );
-    	// 		json[ key ]= loc;	//key,value format
-    	// 	}
-    	// 	return json;
-    	// }
-      //
-
-    	// map.addControl( new L.Control.Search({
-    	// 		sourceData: googleGeocoding,
-    	// 		formatData: formatJSON,
-    	// 		markerLocation: true,
-    	// 		autoType: false,
-    	// 		autoCollapse: true,
-      //     autoType: false,
-    	// 		minLength: 2
-    	// 	})
-      // );
-      //map.on('contextmenu', addMarker);
-    });
-
-    // Erzeugen der Marker-Setzen-Toolbox
-    // Initialise the FeatureGroup to store editable layers
-    var drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
-
-    // Initialise the draw control and pass it the FeatureGroup of editable layers
-    var drawControl = new L.Control.Draw({
-      position: 'topleft',
-      draw: {
-       polyline: false,
-       polygon: false,
-       rectangle: false,
-       circle: false
-     },
-      edit: {
-        featureGroup: drawnItems,
-        edit: false,
-        remove: false
-      }
-    });
-    // Button text für set Marker Button
-    L.drawLocal.draw.toolbar.buttons.marker = 'Neue Markierung setzen.';
-    // Tooltip start text ffür set Marker Button
-    L.drawLocal.draw.handlers.marker.tooltip.start = 'Zum setzen einer neuen Markierung in die Karte klicken...';
-
-    map.addControl(drawControl);
-
-
-    function addMarker(e){
-      // Add marker to map at click location; add popup window
-      console.log("Neuer Marker");
-      console.log(e.latlng);
-      alert(e.latlng);
-      console.log(map.getZoom());
-      var newMarker = new L.marker(e.latlng).addTo(map);
-    }
-    </script>
-
-    <!-- Magnific Popup core JS file -->
-    <script src="scripts/jquery.magnific-popup.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $('.popup-with-form').magnificPopup({
-          type: 'inline',
-          preloader: false,
-          focus: '#name',
-
-          // When elemened is focused, some mobile browsers in some cases zoom in
-          // It looks not nice, so we disable it:
-          callbacks: {
-            beforeOpen: function() {
-              if($(window).width() < 700) {
-                this.st.focus = false;
-              } else {
-                this.st.focus = '#name';
-              }
-            }
+        // add GeoJSON layer to the map once the file is loaded
+        var bikertreffs = L.geoJson(data, {
+          pointToLayer: function(feature, latlng) {
+            var marker = L.marker(latlng, {icon: bikertreffIcon, title: feature.properties.name});
+            // Anzeige bei click auf einen Marker
+            marker.on('click', function(evt) {
+              marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
+            });
+            // // Tooltip on mouse over
+            // Verworfen, man ich das mit  mouseover und click nicht hinbekommen
+            // marker.on('mouseover', function() {
+            //   marker.bindPopup(
+            //   feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
+            //   {'offset': L.point(0,-15)}).openPopup();
+            // });
+            // marker.on('mouseout', function(){marker.closePopup();});
+            return marker;
           }
         });
-      });
-    </script>
-    <!-- form itself -->
-    <form id="test-form" class="mfp-hide white-popup-block">
-      <h1>Neuen Bikertreff anlegen</h1>
-      <fieldset style="border:0;">
-        <p>Lightbox has an option to automatically focus on the first input. It's strongly recommended to use <code>inline</code> popup type for lightboxes with form instead of <code>ajax</code> (to keep entered data if the user accidentally refreshed the page).</p>
-        <ol>
-          <li>
-            <label for="name">Position</label>
-            <input id="postion" name="postion" type="text" required>
-          </li>
-          <li>
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" placeholder="example@domain.com" required>
-          </li>
-          <li>
-            <label for="phone">Phone</label>
-            <input id="phone" name="phone" type="tel" placeholder="Eg. +447500000000" required>
-          </li>
-          <li>
-            <label for="textarea">Textarea</label><br/>
-            <textarea id="textarea">Try to resize me to see how popup
-              CSS-based resizing works.</textarea>
-          </li>
-        </ol>
-      </fieldset>
-    </form>
 
+        var clusters = L.markerClusterGroup();
+        clusters.addLayer(bikertreffs);
+        map.addLayer(clusters);
+
+        // Das erzeugt das Suchfeld, für die Suche nach den Bikertreffs
+        var searchControl = new L.Control.Search({
+          position: 'topleft',
+          layer: clusters,
+          initial: false,
+          propertyName: 'name',
+          textPlaceholder: 'Suche nach Bikertreffs',
+          markerLocation: false,
+          zoom: 13,
+          // moveToLocation: function(latlng, title, map) {
+          // 	//map.fitBounds( latlng.layer.getBounds() );
+          // 	var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+          // 		map.setView(latlng, zoom); // access the zoom
+          // }
+        });
+        map.addControl( searchControl );  //inizialize search control
+
+        // Ortssuche über OSM
+        map.addControl( new L.Control.Search({
+          url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+          jsonpParam: 'json_callback',
+          propertyName: 'display_name',
+          propertyLoc: ['lat','lon'],
+          markerLocation: true,
+          autoCollapse: true,
+          autoType: false,
+          textPlaceholder: 'Ortssuche mit OpenStreetMap',
+          minLength: 3
+        }) );
+
+        // Alternativ Ortssuche über google
+        // Muss ich aber Lizenz klären und API-Schlüssel erzeugen
+        // var geocoder = new google.maps.Geocoder();
+        // function googleGeocoding(text, callResponse) {
+        // 	 geocoder.geocode({address: text}, callResponse);
+        // }
+        //
+        // function formatJSON(rawjson) {
+        // 	var json = {},
+        // 		key, loc, disp = [];
+        //
+        // 	for(var i in rawjson){
+        // 		key = rawjson[i].formatted_address;
+        // 		loc = L.latLng( rawjson[i].geometry.location.lat(), rawjson[i].geometry.location.lng() );
+        // 		json[ key ]= loc;	//key,value format
+        // 	}
+        // 	return json;
+        // }
+        //
+
+        // map.addControl( new L.Control.Search({
+        // 		sourceData: googleGeocoding,
+        // 		formatData: formatJSON,
+        // 		markerLocation: true,
+        // 		autoType: false,
+        // 		autoCollapse: true,
+        //     autoType: false,
+        // 		minLength: 2
+        // 	})
+        // );
+        //map.on('contextmenu', addMarker);
+
+        // Wenn eine gpx-Datei eingelesen wurde...
+        control.loader.on('data:loaded', function (e) {
+          // Add to map layer switcher
+          // layerswitcher.addOverlay(e.layer, e.filename);
+          // alert("Daten wurden geladen");
+
+          console.log(clusters);
+          map.removeLayer(clusters);
+          // clusters.removeLayer(bikertreffs);
+          // map.eachLayer(function(layer) {
+          //   if (layer instanceof L.geoJson) {
+          //     map.removeLayer(layer);
+          //   }
+          // });
+        });
+      }); // End $.getJSON
+
+      // Für Einlesen und darstellen einer gpx-Datei
+      var gpxstyle = {color:'red', opacity: 1.0, fillOpacity: 1.0, weight: 3, clickable: false};
+      L.Control.FileLayerLoad.LABEL = '<i class="fa fa-folder-open"></i>';
+      L.Control.FileLayerLoad.TITLE = 'GPX-, KML- oder geoJson-Datei hochladen und in Karte anzeigen';
+      control = L.Control.fileLayerLoad({
+        fitBounds: true,
+        layerOptions: {style: gpxstyle,
+                       pointToLayer: function (data, latlng) {
+                          return L.circleMarker(latlng, {style: gpxstyle});
+                       }},
+
+        // File size limit in kb (default: 1024) ?
+        fileSizeLimit: 20480,
+      }).addTo(map);
+
+
+
+
+    // Wenn ein neuer Marker gesetzt wurde...
+    map.on('draw:created', function (e) {
+      var type = e.layerType,
+          layer = e.layer;
+      if (type === 'marker') {
+        layer.bindPopup('A popup!');
+        alert('Neuer Marker bei: ' + e.layer._latlng);
+        // a(href="http://link-to-open.com/" onclick="window.open(this.href);return false;")
+        if (true) {
+          $('#test-form').position='hallo',
+            $.magnificPopup.open({
+              items: {
+                src: '#test-form',
+              },
+              type: 'inline'
+            });
+          }
+        }
+        drawnItems.addLayer(layer);
+      });
+
+
+
+      // Erzeugen der Marker-Setzen-Toolbox
+      // Initialise the FeatureGroup to store editable layers
+      var drawnItems = new L.FeatureGroup();
+      map.addLayer(drawnItems);
+
+      // Initialise the draw control and pass it the FeatureGroup of editable layers
+      var drawControl = new L.Control.Draw({
+        position: 'topleft',
+        draw: {
+         polyline: false,
+         polygon: false,
+         rectangle: false,
+         circle: false
+       },
+        edit: {
+          featureGroup: drawnItems,
+          edit: false,
+          remove: false
+        }
+      });
+      // Button text für set Marker Button
+      L.drawLocal.draw.toolbar.buttons.marker = 'Neue Markierung setzen.';
+      // Tooltip start text ffür set Marker Button
+      L.drawLocal.draw.handlers.marker.tooltip.start = 'Zum setzen einer neuen Markierung in die Karte klicken...';
+
+      map.addControl(drawControl);
+
+      function addMarker(e){
+        // Add marker to map at click location; add popup window
+        console.log("Neuer Marker");
+        console.log(e.latlng);
+        alert(e.latlng);
+        console.log(map.getZoom());
+        var newMarker = new L.marker(e.latlng).addTo(map);
+      }
+      // Callback functions für das Right Click-Menü
+      function showCoordinates (e) {
+          alert(e.latlng);
+      }
+      function centerMap (e) {
+          map.panTo(e.latlng);
+      }
+      function zoomIn (e) {
+          map.zoomIn();
+      }
+      function zoomOut (e) {
+          map.zoomOut();
+      }
+      </script>
+
+      <!-- Magnific Popup core JS file -->
+      <script src="scripts/jquery.magnific-popup.min.js"></script>
+      <script type="text/javascript">
+        $(document).ready(function() {
+          $('.popup-with-form').magnificPopup({
+            type: 'inline',
+            preloader: false,
+            focus: '#name',
+
+            // When elemened is focused, some mobile browsers in some cases zoom in
+            // It looks not nice, so we disable it:
+            callbacks: {
+              beforeOpen: function() {
+                if($(window).width() < 700) {
+                  this.st.focus = false;
+                } else {
+                  this.st.focus = '#name';
+                }
+              }
+            }
+          });
+        });
+      </script>
+
+      <!-- form itself -->
+      <form id="test-form" class="mfp-hide white-popup-block">
+        <h1>Neuen Bikertreff anlegen</h1>
+        <fieldset style="border:0;">
+          <p>Lightbox has an option to automatically focus on the first input. It's strongly recommended to use <code>inline</code> popup type for lightboxes with form instead of <code>ajax</code> (to keep entered data if the user accidentally refreshed the page).</p>
+          <ol>
+            <li>
+              <label for="name">Position</label>
+              <input id="postion" name="postion" type="text" required>
+            </li>
+            <li>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="example@domain.com" required>
+            </li>
+            <li>
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="Eg. +447500000000" required>
+            </li>
+            <li>
+              <label for="textarea">Textarea</label><br/>
+              <textarea id="textarea">Try to resize me to see how popup
+                CSS-based resizing works.</textarea>
+            </li>
+          </ol>
+        </fieldset>
+      </form>
   </body>
 </html>
