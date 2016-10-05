@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Hajo's Bikertreffs-Karte V0.2.0</title>
+    <title>Hajo's Bikertreffs-Karte V0.2.1  </title>
     <link rel="stylesheet" href="style/MarkerCluster.css"/>
     <link rel="stylesheet" href="style/leaflet.contextmenu.min.css"/>
     <!-- Magnific Popup core CSS file -->
@@ -25,76 +25,80 @@
     <script src="scripts/leaflet.contextmenu.min.js"></script>
     <script src="scripts/jquery-2.1.1.min.js"></script>
 
-
-
     <style>
       #map{ width: 100%; height: 100%; }
     </style>
   </head>
 
   <body>
-    <!-- link that opens popup -->
-    <!-- <a class="popup-with-form" href="#test-form">Open form</a> -->
-
-
     <div id="map"></div>
+    <!-- Include für die Map Provider -->
     <script src="scripts/leaflet-MapProvider.js"></script>
+
     <!-- Include für die Ortssuche mit googleapis
     <script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script> -->
 
     <script>
-      // initialize the maps
+      // initialize the map
       var map = L.map('map', {
-        center: [50.9513627, 7.2044041],  // Bergisches Land
+        // Karte zentrieren um: Bergisches Land
+        center: [50.9513627, 7.2044041],
         zoom: 9,
         // Menü bei Right Click in die Karte
         contextmenu: true,
-        contextmenuWidth: 140,
+        contextmenuWidth: 150,
+        // Kontextmenü-Einträge und aufzurufende Funktionen definieren
         contextmenuItems: [{
-          text: 'Show coordinates',
+          text: 'Koordinaten anzeigen',
           callback: showCoordinates
         }, {
-          text: 'Center map here',
+          text: 'Karte hier zentrieren',
           callback: centerMap
         }, '-', {
-          text: 'Zoom in',
+          text: 'Hinein zoomen',
           icon: 'images/zoom-in.png',
           callback: zoomIn
         }, {
-          text: 'Zoom out',
+          text: 'Heraus zoomen',
           icon: 'images/zoom-out.png',
           callback: zoomOut
         }]
       });
 
-      // Basis Karten-Layer
-      map.addLayer(OpenStreetMap);
-      // Damit kann man die Karten-Anbieter umschalten
+      // Basis Karten-Layer wählen und Karte darstellen
+      map.addLayer(OpenMapSurfer_Roads);
+
+      // Kontroll-Element zum Umschalten des Karten-Anbieters:  oben rechts
       L.control.layers(baseLayers).addTo(map);
-      // Nur metrischer Massstab unten links
-      L.control.scale({imperial: false}).addTo(map);
+      // Nur metrischen Massstab anzeigen:                      unten links
+      L.control.scale({position: 'bottomright', maxWidth: "150", imperial: false}).addTo(map);
       // Layer für die Marker und Suche
       var markersLayer = new L.LayerGroup();
       map.addLayer(markersLayer);
 
       // Liest alle Bikertreffs aus der Cloudant-Datenbank
+      // Als Ergebnis kommt ein json-Dokument zurück und steckt es in data
+      // app.get('/getBikertreffs', bikertreffs.getBikertreffs) ist in app.js definiert
+      // Der Aufruf ruft getBikertreffs aus der Datei routes/bikertreffs.js
       $.getJSON('/getBikertreffs', function(data) {
+        // Definition des Ikons zur Darstellung der Bikertreffs
         var bikertreffIcon = L.icon({
           iconUrl: 'images/bikertreffMarker.png',
-          iconSize: [35,54],
-          iconAnchor: [17, 54],
+          iconSize: [31,48],
+          iconAnchor: [16, 48],
         });
 
-        // add GeoJSON layer to the map once the file is loaded
+        // Hinzufügen eines Layers für die Marker
+        // und für alle Datensätze Marker setzen und in bikertreffs speichern
         var bikertreffs = L.geoJson(data, {
           pointToLayer: function(feature, latlng) {
+            // Definition einer Markers: Position, Ikon, Tooltip-Text angezeigt bei Mouseover
             var marker = L.marker(latlng, {icon: bikertreffIcon, title: feature.properties.name});
             // Anzeige bei click auf einen Marker
             marker.on('click', function(evt) {
               marker.bindPopup(feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng);
             });
-            // // Tooltip on mouse over
-            // Verworfen, man ich das mit  mouseover und click nicht hinbekommen
+            // // Tooltip on mouse over            // Verworfen, man ich das mit  mouseover und click nicht hinbekommen
             // marker.on('mouseover', function() {
             //   marker.bindPopup(
             //   feature.properties.name + '<br/>' + feature.properties.desc + '<br/>'  + latlng,
@@ -105,11 +109,13 @@
           }
         });
 
+        // Das Layer mit den Markern hinzufügen
         var clusters = L.markerClusterGroup();
         clusters.addLayer(bikertreffs);
         map.addLayer(clusters);
 
-        // Das erzeugt das Suchfeld, für die Suche nach den Bikertreffs
+        // Suchen ermöglichen
+        // Suchfeld, für die Suche nach den Bikertreffs
         var searchControl = new L.Control.Search({
           position: 'topleft',
           layer: clusters,
@@ -177,18 +183,14 @@
           // layerswitcher.addOverlay(e.layer, e.filename);
           // alert("Daten wurden geladen");
 
-          console.log(clusters);
+          //console.log(clusters);
+          // Entfernen des Layers mit den Bikertreffs
           map.removeLayer(clusters);
-          // clusters.removeLayer(bikertreffs);
-          // map.eachLayer(function(layer) {
-          //   if (layer instanceof L.geoJson) {
-          //     map.removeLayer(layer);
-          //   }
-          // });
         });
       }); // End $.getJSON
 
-      // Für Einlesen und darstellen einer gpx-Datei
+      // =====
+      // Für Einlesen und Darstellen einer gpx-Datei
       var gpxstyle = {color:'red', opacity: 1.0, fillOpacity: 1.0, weight: 3, clickable: false};
       L.Control.FileLayerLoad.LABEL = '<i class="fa fa-folder-open"></i>';
       L.Control.FileLayerLoad.TITLE = 'GPX-, KML- oder geoJson-Datei hochladen und in Karte anzeigen';
@@ -200,30 +202,29 @@
                        }},
 
         // File size limit in kb (default: 1024) ?
-        fileSizeLimit: 20480,
+        fileSizeLimit: 120480,
       }).addTo(map);
 
 
-
-
-    // Wenn ein neuer Marker gesetzt wurde...
-    map.on('draw:created', function (e) {
-      var type = e.layerType,
+      // =====
+      // Wenn ein neuer Marker gesetzt wurde...
+      map.on('draw:created', function (e) {
+        var type = e.layerType,
           layer = e.layer;
-      if (type === 'marker') {
-        layer.bindPopup('A popup!');
-        alert('Neuer Marker bei: ' + e.layer._latlng);
-        // a(href="http://link-to-open.com/" onclick="window.open(this.href);return false;")
-        if (true) {
-          $('#test-form').position='hallo',
-            $.magnificPopup.open({
-              items: {
-                src: '#test-form',
-              },
-              type: 'inline'
-            });
+        if (type === 'marker') {
+          layer.bindPopup('A popup!');
+          alert('Neuer Marker bei: ' + e.layer._latlng);
+          // a(href="http://link-to-open.com/" onclick="window.open(this.href);return false;")
+          if (true) {
+            $('#test-form').position='hallo',
+              $.magnificPopup.open({
+                items: {
+                  src: '#test-form',
+                },
+                type: 'inline'
+              });
+            }
           }
-        }
         drawnItems.addLayer(layer);
       });
 
@@ -235,6 +236,7 @@
       map.addLayer(drawnItems);
 
       // Initialise the draw control and pass it the FeatureGroup of editable layers
+      // Das wird benötigt, um das SetMerker Control darzustellen
       var drawControl = new L.Control.Draw({
         position: 'topleft',
         draw: {
@@ -251,7 +253,7 @@
       });
       // Button text für set Marker Button
       L.drawLocal.draw.toolbar.buttons.marker = 'Neue Markierung setzen.';
-      // Tooltip start text ffür set Marker Button
+      // Tooltip start text für set Marker Button
       L.drawLocal.draw.handlers.marker.tooltip.start = 'Zum setzen einer neuen Markierung in die Karte klicken...';
 
       map.addControl(drawControl);

@@ -64,7 +64,7 @@ function putBikertreff(callback){
 exports.getBikertreffs = function(req, res) {
   getBikertreffs(function(err, doc){
     if(err)
-      console.log('Error reading all mutants: ' + err);
+      console.log('Error reading all Bikertreffs: ' + err);
     else {
       var bikertreffsJson = '[';
       for (var i=0; i<doc.length; i++) {
